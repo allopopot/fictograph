@@ -3,3 +3,7 @@
 
     let { data }: PageProps = $props();
 </script>
+
+<h1>
+    Hello, {data.user.name}
+</h1>
