@@ -44,6 +44,8 @@
 		"wrangler": "^4.97.0"
 	},
 	"dependencies": {
+		"@aws-sdk/client-s3": "^3.1146.0",
+		"@aws-sdk/s3-request-presigner": "^3.1146.0",
 		"zod": "^4.6.5"
 	}
 }

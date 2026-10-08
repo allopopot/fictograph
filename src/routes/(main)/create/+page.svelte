@@ -2,6 +2,7 @@
     import * as InputGroup from "$lib/components/ui/input-group";
     import { Button } from "$lib/components/ui/button";
     import { SearchIcon, X } from "@lucide/svelte";
+    import { selectedTitles, selectedTitlesLimit } from "../books.svelte";
     // import type { PageProps } from "./$types";
     import {
         getBooks,
@@ -11,7 +12,6 @@
 
     // let { data }: PageProps = $props();
 
-    let selectedTitles = $state<BookDoc[]>([]);
     let search = $state("");
     let bookResponse = $state<Promise<Response>>();
 
@@ -24,7 +24,7 @@
     }
 
     function selectBooks(b: BookDoc) {
-        if (selectedTitles.length < 3) {
+        if (selectedTitles.length < selectedTitlesLimit) {
             selectedTitles.push(b);
         }
     }
@@ -108,9 +108,17 @@
         </div>
     </div>
     <div class="w-full p-6">
-        <h2 class="text-xl font-semibold mb-2">
-            Selected ({selectedTitles.length})
-        </h2>
+        <div class="flex items-center-safe justify-between mb-2">
+            <h2 class="text-xl font-semibold">
+                Selected ({selectedTitles.length}/{selectedTitlesLimit})
+            </h2>
+            <a href="/generate">
+                <Button
+                    disabled={selectedTitles.length <= 1}
+                    variant={"default"}>Generate</Button
+                >
+            </a>
+        </div>
         {#each selectedTitles as book, idx}
             <div
                 class="first:border-t border-b p-3 flex items-center-safe gap-4"
