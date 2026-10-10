@@ -11,7 +11,7 @@ export const image = pgTable("image", {
         .references(() => user.id, { onDelete: "cascade" }),
 });
 
-export type Image = typeof image.$inferInsert
+export type Image = typeof image.$inferSelect
 
 
 export const book = pgTable("book", {
@@ -31,7 +31,7 @@ export const book = pgTable("book", {
         .references(() => image.id, { onDelete: "cascade" }),
 });
 
-export type Book = typeof book.$inferInsert
+export type Book = typeof book.$inferSelect
 
 
 export * from './auth.schema';
