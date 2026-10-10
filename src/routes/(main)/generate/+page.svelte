@@ -3,6 +3,8 @@
     import { selectedTitles } from "../books.svelte";
     import { Button } from "$lib/components/ui/button";
     import { onMount } from "svelte";
+    import { goto } from "$app/navigation";
+
     let { data }: PageProps = $props();
 
     let imageUrl: string = $state<string>("");
@@ -20,7 +22,11 @@
     }
 
     onMount(() => {
-        generate();
+        if (selectedTitles.length <= 0) {
+            goto("/create");
+        } else {
+            generate();
+        }
     });
 </script>
 
@@ -50,6 +56,13 @@
                 <p class="text-md text-center text-background">{st.title}</p>
             </div>
         {/each}
-        <a href="/"><Button class="w-full">Go to Home</Button></a>
+        <a href="/create">
+            <Button disabled={!imageUrl} class="w-full mb-1">
+                Create Again
+            </Button>
+        </a>
+        <a href="/">
+            <Button disabled={!imageUrl} class="w-full">Home</Button>
+        </a>
     </div>
 </div>

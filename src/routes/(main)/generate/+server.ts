@@ -1,21 +1,8 @@
 import type { BookDoc } from '$lib/api/books';
 import type { RequestHandler } from './$types';
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_ENDPOINT_URL_S3 } from "$env/static/private"
 import { db } from '$lib/server/db';
 import { book, image, type Book } from '$lib/server/db/schema';
-
-const s3 = new S3Client({
-    forcePathStyle: true,
-    region: AWS_REGION,
-    credentials: {
-        accessKeyId: AWS_ACCESS_KEY_ID,
-        secretAccessKey: AWS_SECRET_ACCESS_KEY
-    },
-    endpoint: AWS_ENDPOINT_URL_S3
-});
-const bucket = "fictograph";
+import { signUrl, uploadFile } from '$lib/server/s3';
 
 export const POST: RequestHandler = async (event) => {
     const data: BookDoc[] = await event.request.json()
@@ -57,8 +44,8 @@ export const POST: RequestHandler = async (event) => {
     const bookWriteRes = await db.insert(book).values([...sx])
 
     const file = await fakeImageGenerator()
-    const re = await s3.send(new PutObjectCommand({ Bucket: bucket, Key: filename, Body: Buffer.from(file) }));
-    const url = await getSignedUrl(s3, new GetObjectCommand({ Bucket: bucket, Key: filename }), { expiresIn: 3600 });
+    await uploadFile(filename, Buffer.from(file))
+    const url = await signUrl(filename);
     const formdata = new FormData()
     formdata.append("image", url)
     return new Response(formdata);
@@ -66,7 +53,7 @@ export const POST: RequestHandler = async (event) => {
 
 
 async function fakeImageGenerator() {
-    const response = await fetch("https://dummyfiles.dev/image/1920x1080")
+    const response = await fetch("https://picsum.photos/1920/1080")
     const body = await response.arrayBuffer()
     return body
 }
