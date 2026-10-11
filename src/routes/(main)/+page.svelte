@@ -47,7 +47,9 @@
                         </Card.Description>
                     </Card.Header>
                     <Card.Footer>
-                        <Button class="w-full">View Image</Button>
+                        <a href={`/image/${image.id}`} class="w-full">
+                            <Button class="w-full">View Image</Button>
+                        </a>
                     </Card.Footer>
                 </Card.Root>
             {/each}
@@ -65,7 +67,9 @@
                         </Card.Description>
                     </Card.Header>
                     <Card.Footer>
-                        <Button class="w-full">View Image</Button>
+                        <a href={`/image/${image.id}`} class="w-full">
+                            <Button class="w-full">View Image</Button>
+                        </a>
                     </Card.Footer>
                 </Card.Root>
             {/each}
