@@ -8,6 +8,8 @@
     let { data }: PageProps = $props();
 
     let imageUrl: string = $state<string>("");
+    let title: string = $state<string>("");
+    let description: string = $state<string>("");
 
     async function generate() {
         const response = await fetch("/generate", {
@@ -19,6 +21,8 @@
         });
         const data = await response.formData();
         imageUrl = data.get("image")?.toString() ?? "";
+        title = data.get("title")?.toString() ?? "";
+        description = data.get("description")?.toString() ?? "";
     }
 
     onMount(() => {
@@ -34,10 +38,14 @@
     <div class="p-6">
         <div
             id="frame"
-            class="border-2 border-gray-200 rounded-lg h-full w-full grid place-items-center-safe"
+            class="border-2 border-gray-200 rounded-lg h-full w-full grid place-items-center-safe grid-flow-row"
         >
             {#if imageUrl}
                 <img src={imageUrl} alt="" />
+                <div class="p-4">
+                    <h2 class="text-xl font-semibold mb-2">{title}</h2>
+                    <p>{description}</p>
+                </div>
             {:else}
                 <p>Generating...</p>
             {/if}

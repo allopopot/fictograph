@@ -37,16 +37,15 @@
                 <Card.Root class="relative group">
                     <img
                         src={image.image_key}
-                        alt=""
+                        alt={image.title}
                         class="relative z-20 aspect-video w-full object-cover"
                     />
-                    <!-- <Card.Header>
-                        <Card.Title>Design systems meetup</Card.Title>
+                    <Card.Header>
+                        <Card.Title>{image.title}</Card.Title>
                         <Card.Description>
-                            A practical talk on component APIs, accessibility,
-                            and shipping faster.
+                            {image.description}
                         </Card.Description>
-                    </Card.Header> -->
+                    </Card.Header>
                     <Card.Footer>
                         <Button class="w-full">View Image</Button>
                     </Card.Footer>
@@ -56,16 +55,15 @@
                 <Card.Root class="relative group">
                     <img
                         src={image.image_key}
-                        alt=""
+                        alt={image.title ?? ""}
                         class="relative z-20 aspect-video w-full object-cover"
                     />
-                    <!-- <Card.Header>
-                        <Card.Title>Design systems meetup</Card.Title>
+                    <Card.Header>
+                        <Card.Title>{image.title}</Card.Title>
                         <Card.Description>
-                            A practical talk on component APIs, accessibility,
-                            and shipping faster.
+                            {image.description}
                         </Card.Description>
-                    </Card.Header> -->
+                    </Card.Header>
                     <Card.Footer>
                         <Button class="w-full">View Image</Button>
                     </Card.Footer>

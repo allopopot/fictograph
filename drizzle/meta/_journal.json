@@ -15,6 +15,13 @@
       "when": 1791175962350,
       "tag": "0001_fancy_zeigeist",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791728593867,
+      "tag": "0002_chilly_wendell_vaughn",
+      "breakpoints": true
     }
   ]
 }
