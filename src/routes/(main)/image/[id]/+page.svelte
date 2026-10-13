@@ -1,79 +1,67 @@
 <script lang="ts">
     import { Button } from "$lib/components/ui/button/index";
-    import * as Card from "$lib/components/ui/card/index.js";
     import type { PageProps } from "./$types";
 
     let { data }: PageProps = $props();
 </script>
 
-<div class="overflow-auto p-6">
-    <div class="mb-4">
-        <a href="/">
-            <Button variant="outline">← Back to Gallery</Button>
-        </a>
-    </div>
+<div class="max-w-5xl mx-auto px-6 py-10">
+    <!-- Back -->
+    <a href="/" class="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-8 group">
+        <span class="group-hover:-translate-x-0.5 transition-transform">←</span>
+        Gallery
+    </a>
 
-    <div class="grid grid-cols-[3fr_2fr] gap-6">
+    <!-- Two-column on lg+, single on mobile -->
+    <div class="flex flex-col lg:grid lg:grid-cols-[1fr_320px] gap-8">
+        <!-- Image -->
         <div>
             <img
                 src={data.image.image_key}
                 alt={data.image.title ?? ""}
-                class="w-full rounded-lg border"
+                class="w-full h-auto block bg-muted"
             />
         </div>
 
+        <!-- Info -->
         <div class="flex flex-col gap-6">
-            <Card.Root>
-                <Card.Header>
-                    <Card.Title class="text-2xl">
-                        {data.image.title ?? "Untitled"}
-                    </Card.Title>
-                    <Card.Description>
-                        {data.image.description ?? "No description"}
-                    </Card.Description>
-                </Card.Header>
-                <Card.Content>
-                    <p class="text-sm text-muted-foreground">
-                        Created on {new Date(data.image.createdAt).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                        })}
-                    </p>
-                </Card.Content>
-            </Card.Root>
+            <div>
+                <h1 class="text-lg font-semibold leading-snug">{data.image.title ?? "Untitled"}</h1>
+                <p class="text-sm text-muted-foreground mt-2 leading-relaxed">
+                    {data.image.description ?? "No description."}
+                </p>
+                <p class="text-xs text-muted-foreground mt-4">
+                    {new Date(data.image.createdAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                    })}
+                </p>
+            </div>
 
             {#if data.books.length > 0}
-                <Card.Root>
-                    <Card.Header>
-                        <Card.Title>Inspired By</Card.Title>
-                        <Card.Description>
-                            {data.books.length} book{data.books.length > 1 ? "s" : ""}
-                        </Card.Description>
-                    </Card.Header>
-                    <Card.Content class="flex flex-col gap-3">
+                <div>
+                    <p class="text-xs text-muted-foreground uppercase tracking-widest mb-3">Inspired by</p>
+                    <div class="flex flex-col gap-2">
                         {#each data.books as bookItem}
-                            <div
-                                class="flex items-center gap-3 rounded-lg border p-3"
-                            >
+                            <div class="flex items-center gap-3 py-2 border-b border-border last:border-0">
                                 {#if bookItem.image_url}
                                     <img
                                         src={bookItem.image_url}
                                         alt={`Cover of ${bookItem.title}`}
-                                        class="h-16 w-auto rounded"
+                                        class="h-12 w-auto bg-muted shrink-0"
                                     />
                                 {/if}
-                                <div>
-                                    <p class="font-medium">
-                                        {bookItem.title ?? "Unknown Title"}
-                                    </p>
-                                </div>
+                                <p class="text-sm">{bookItem.title ?? "Unknown"}</p>
                             </div>
                         {/each}
-                    </Card.Content>
-                </Card.Root>
+                    </div>
+                </div>
             {/if}
+
+            <a href="/create">
+                <Button variant="outline" class="w-full text-xs">Create another</Button>
+            </a>
         </div>
     </div>
 </div>
-

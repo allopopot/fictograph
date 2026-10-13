@@ -1,7 +1,6 @@
 <script lang="ts">
     import { Button } from "$lib/components/ui/button/index";
     import type { PageProps } from "./$types";
-    import * as Card from "$lib/components/ui/card/index.js";
     import type { ImageListResponse } from "./+server";
     import type { Image } from "$lib/server/db/schema";
 
@@ -23,75 +22,70 @@
     }
 </script>
 
-<div class="overflow-auto p-6">
+<div class="max-w-6xl mx-auto px-6 py-10">
     {#if (data.images?.length ?? 0) <= 0}
-        <div class="grid place-items-center w-full h-full">
-            <div>
-                <p>Welcome, {data.user.name}</p>
-                <Button href="/create">Create</Button>
-            </div>
+        <!-- Empty state -->
+        <div
+            class="flex flex-col items-center justify-center min-h-[60vh] gap-5 text-center"
+        >
+            <p class="text-sm text-muted-foreground">No images yet.</p>
+            <a href="/create">
+                <Button>Create your first image</Button>
+            </a>
         </div>
     {:else}
-        <div class="grid grid-cols-3 w-full gap-6">
-            {#each data.images as image}
-                <Card.Root class="relative group">
-                    <img
-                        src={image.image_key}
-                        alt={image.title}
-                        class="relative z-20 aspect-video w-full object-cover"
-                    />
-                    <Card.Header>
-                        <Card.Title>{image.title}</Card.Title>
-                        <Card.Description>
+        <!-- Page label -->
+        <div class="mb-8 flex items-center justify-between">
+            <p class="text-xs text-muted-foreground tracking-widest uppercase">
+                {data?.count ?? 0} images
+            </p>
+            <a href="/create">
+                <Button size="sm" variant="outline">+ Create</Button>
+            </a>
+        </div>
+
+        <!-- Grid -->
+        <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-border"
+        >
+            {#each [...data.images, ...imagesList] as image}
+                <a
+                    href={`/image/${image.id}`}
+                    class="group bg-background block overflow-hidden"
+                >
+                    <div class="relative overflow-hidden">
+                        <img
+                            src={image.image_key}
+                            alt={image.title}
+                            class="aspect-video w-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                        />
+                    </div>
+                    <div class="p-4">
+                        <p class="text-sm font-medium text-foreground truncate">
+                            {image.title}
+                        </p>
+                        <p
+                            class="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed"
+                        >
                             {image.description}
-                        </Card.Description>
-                    </Card.Header>
-                    <Card.Footer>
-                        <a href={`/image/${image.id}`} class="w-full">
-                            <Button class="w-full">View Image</Button>
-                        </a>
-                    </Card.Footer>
-                </Card.Root>
-            {/each}
-            {#each imagesList as image}
-                <Card.Root class="relative group">
-                    <img
-                        src={image.image_key}
-                        alt={image.title ?? ""}
-                        class="relative z-20 aspect-video w-full object-cover"
-                    />
-                    <Card.Header>
-                        <Card.Title>{image.title}</Card.Title>
-                        <Card.Description>
-                            {image.description}
-                        </Card.Description>
-                    </Card.Header>
-                    <Card.Footer>
-                        <a href={`/image/${image.id}`} class="w-full">
-                            <Button class="w-full">View Image</Button>
-                        </a>
-                    </Card.Footer>
-                </Card.Root>
+                        </p>
+                    </div>
+                </a>
             {/each}
         </div>
-        <div class="mt-6">
+
+        <!-- Load more -->
+        <div class="mt-10 text-center">
             {#if allImagesLoaded}
-                <Button
-                    onclick={() => {
-                        loadMore();
-                    }}
-                    disabled={true}
-                    variant="outline"
-                    class="w-full">Reached the End.</Button
-                >
+                <p class="text-xs text-muted-foreground">All images loaded.</p>
             {:else}
                 <Button
-                    onclick={() => {
-                        loadMore();
-                    }}
+                    onclick={() => loadMore()}
                     variant="outline"
-                    class="w-full">Load More</Button
+                    class="min-w-32"
                 >
+                    Load more
+                </Button>
             {/if}
         </div>
     {/if}
