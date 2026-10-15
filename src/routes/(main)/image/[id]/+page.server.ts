@@ -1,9 +1,9 @@
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { image, book } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { signUrl } from '$lib/server/s3';
-import { error } from '@sveltejs/kit';
+import { deleteFile, signUrl } from '$lib/server/s3';
+import { error, redirect } from '@sveltejs/kit';
 
 export const load = (async (event) => {
     if (!event.locals.user?.id) {
@@ -21,8 +21,6 @@ export const load = (async (event) => {
         .where(and(eq(image.id, imageId), eq(image.user_id, event.locals.user.id)))
         .innerJoin(book, eq(image.id, book.image_id));
 
-    console.log(images)
-
     if (images.length === 0) {
         return error(404, 'Image not found');
     }
@@ -38,4 +36,31 @@ export const load = (async (event) => {
 
     return responseBody;
 }) satisfies PageServerLoad;
+
+export const actions: Actions = {
+    delete: async (event) => {
+        console.log("==========")
+        if (!event.locals.user?.id) {
+            return error(401, 'Unauthorized');
+        }
+
+        const { id } = event.params
+
+        let imageRes = await db.query.image.findFirst({
+            where(fields, operators) {
+                return operators.and(
+                    operators.eq(fields.id, parseInt(id)),
+                    operators.eq(fields.user_id, event.locals.user?.id ?? "")
+                )
+            },
+        })
+        if (!imageRes) {
+            return redirect(302, "/")
+        }
+        await deleteFile(imageRes.image_key ?? "")
+        await db.delete(image).where(eq(image.id, parseInt(id)))
+        await db.delete(book).where(eq(book.image_id, parseInt(id)))
+        return redirect(302, "/")
+    }
+};
 

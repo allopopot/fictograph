@@ -1,5 +1,5 @@
 import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_ENDPOINT_URL_S3, AWS_S3_BUCKET } from "$env/static/private"
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3 = new S3Client({
@@ -19,5 +19,15 @@ export async function signUrl(key = "") {
 
 export async function uploadFile(fileName = "", file: Buffer<ArrayBuffer>) {
     const response = await s3.send(new PutObjectCommand({ Bucket: AWS_S3_BUCKET, Key: fileName, Body: file }));
+    return response
+}
+
+export async function uploadString(fileName = "", string = "") {
+    const response = await s3.send(new PutObjectCommand({ Bucket: AWS_S3_BUCKET, Key: fileName, Body: string }));
+    return response
+}
+
+export async function deleteFile(fileName = "") {
+    const response = await s3.send(new DeleteObjectCommand({ Bucket: AWS_S3_BUCKET, Key: fileName }));
     return response
 }
