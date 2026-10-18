@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Button } from "$lib/components/ui/button/index";
+    import { Download } from "@lucide/svelte";
     import type { PageProps } from "./$types";
 
     let { data }: PageProps = $props();
@@ -87,13 +88,23 @@
                 </div>
             {/if}
 
-            <form action="?/delete" method="POST">
-                <Button
-                    type="submit"
-                    variant="destructive"
-                    class="w-full text-xs">Delete</Button
+            <div class="flex flex-col gap-2">
+                <a
+                    href="/image/{data.image.id}/download"
+                    class="inline-flex items-center justify-center gap-2 w-full text-xs h-9 px-4 py-2 border border-border rounded-sm bg-background hover:bg-muted transition-colors text-foreground"
                 >
-            </form>
+                    <Download size={13} />
+                    Download
+                </a>
+
+                <form action="?/delete" method="POST">
+                    <Button
+                        type="submit"
+                        variant="destructive"
+                        class="w-full text-xs">Delete</Button
+                    >
+                </form>
+            </div>
         </div>
     </div>
 </div>
