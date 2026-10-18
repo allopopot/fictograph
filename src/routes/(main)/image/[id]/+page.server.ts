@@ -39,7 +39,6 @@ export const load = (async (event) => {
 
 export const actions: Actions = {
     delete: async (event) => {
-        console.log("==========")
         if (!event.locals.user?.id) {
             return error(401, 'Unauthorized');
         }
@@ -57,7 +56,11 @@ export const actions: Actions = {
         if (!imageRes) {
             return redirect(302, "/")
         }
-        await deleteFile(imageRes.image_key ?? "")
+        try {
+            await deleteFile(imageRes.image_key ?? "")
+        } catch (error) {
+            console.error("==== CANNOT DELETE FILE", error)
+        }
         await db.delete(image).where(eq(image.id, parseInt(id)))
         await db.delete(book).where(eq(book.image_id, parseInt(id)))
         return redirect(302, "/")
