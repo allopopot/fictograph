@@ -6,6 +6,7 @@ export const image = pgTable("image", {
     image_key: text("image_url"),
     title: text("title"),
     description: text("description"),
+    ai_prompt: text("ai_prompt"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at"),
     user_id: text("user_id")

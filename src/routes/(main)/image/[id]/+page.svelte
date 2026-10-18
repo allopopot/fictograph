@@ -35,6 +35,18 @@
                 <p class="text-sm text-muted-foreground mt-2 leading-relaxed">
                     {data.image.description ?? "No description."}
                 </p>
+
+                {#if data.image.ai_prompt}
+                    <div class="mt-4">
+                        <p class="text-xs text-muted-foreground uppercase tracking-widest mb-2">
+                            AI Prompt
+                        </p>
+                        <p class="text-xs leading-relaxed text-foreground/70 bg-muted/40 border border-border rounded-sm px-3 py-2 font-mono whitespace-pre-wrap">
+                            {data.image.ai_prompt}
+                        </p>
+                    </div>
+                {/if}
+
                 <p class="text-xs text-muted-foreground mt-4">
                     {new Date(data.image.createdAt).toLocaleDateString(
                         "en-US",

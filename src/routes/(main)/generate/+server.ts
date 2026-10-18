@@ -41,7 +41,8 @@ It should capture the essence of these books`
         user_id: event.locals.user?.id,
         // image_key: filename,
         title: basePromptResponseBodyContent.title,
-        description: basePromptResponseBodyContent.description
+        description: basePromptResponseBodyContent.description,
+        ai_prompt: basePromptResponseBodyContent.prompt
     }
 
     const imageWriteResponse = await db.insert(image).values(imageWriteRow).returning({ id: image.id })

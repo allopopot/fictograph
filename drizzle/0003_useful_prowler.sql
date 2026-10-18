@@ -1,0 +1,1 @@
+ALTER TABLE "image" ADD COLUMN "ai_prompt" text;
