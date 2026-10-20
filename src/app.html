@@ -1,17 +1,24 @@
 <!doctype html>
 <html lang="en">
 	<head>
+		<title>FictoGraph</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
-		<!-- Apply saved theme before first paint to prevent flash -->
+		<!-- Apply saved theme + favicon before first paint to prevent flash -->
 		<script>
 			(function () {
 				var stored = localStorage.getItem('fictograph-theme');
 				var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-				if (stored === 'dark' || (!stored && prefersDark)) {
+				var dark = stored === 'dark' || (!stored && prefersDark);
+				if (dark) {
 					document.documentElement.classList.add('dark');
 				}
+				var link = document.createElement('link');
+				link.rel = 'icon';
+				link.type = 'image/svg+xml';
+				link.href = dark ? '/favicon-dark.svg' : '/favicon-light.svg';
+				document.head.appendChild(link);
 			})();
 		</script>
 		%sveltekit.head%

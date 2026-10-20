@@ -3,6 +3,7 @@
     import "../layout.css";
     import { Button } from "$lib/components/ui/button/index";
     import ThemeToggle from "$lib/components/ui/theme-toggle/ThemeToggle.svelte";
+    import Logo from "$lib/components/Logo.svelte";
 
     let { data, children }: LayoutProps = $props();
     let mobileNavOpen = $state(false);
@@ -16,9 +17,9 @@
         <div class="flex-1 flex items-center gap-8">
             <a
                 href="/"
-                class="text-sm font-medium tracking-tight text-foreground"
+                class="flex items-center"
             >
-                Fictograph
+                <Logo size={32} />
             </a>
         </div>
 

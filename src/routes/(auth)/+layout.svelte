@@ -1,12 +1,10 @@
 <script lang="ts">
 	import "../layout.css";
-	import favicon from "$lib/assets/favicon.svg";
 	import ThemeToggle from "$lib/components/ui/theme-toggle/ThemeToggle.svelte";
+	import Logo from "$lib/components/Logo.svelte";
 
 	let { children } = $props();
 </script>
-
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
 <div class="min-h-dvh w-full flex flex-col items-center justify-center px-4 py-16 bg-background">
 	<!-- Theme toggle -->
@@ -15,8 +13,8 @@
 	</div>
 
 	<!-- Brand -->
-	<div class="mb-10 text-center">
-		<p class="text-xs text-muted-foreground tracking-[0.2em] uppercase mb-2">Fictograph</p>
+	<div class="mb-10 text-center flex flex-col items-center">
+		<Logo size={64} />
 	</div>
 
 	<!-- Auth card -->
