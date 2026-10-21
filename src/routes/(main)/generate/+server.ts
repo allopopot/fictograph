@@ -2,49 +2,34 @@ import type { BookDoc } from '$lib/api/books';
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db';
 import { book, image, type BookInsert, type ImageInsert } from '$lib/server/db/schema';
-import { signUrl, uploadFile } from '$lib/server/s3';
-import { eq } from 'drizzle-orm';
+import { uploadBase64 } from '$lib/server/s3';
+import { OPENROUTER_KEY } from '$env/static/private';
 
 export const POST: RequestHandler = async (event) => {
+    console.log("AI INFERENCE RUNNING")
     const data: BookDoc[] = await event.request.json()
-    const filename = `${Date.now()}.jpg`
 
     if (!event.locals.user?.id) {
         return new Response()
     }
 
-    // Generate a Base Prompt ====================================================================================
+    const filename = `${Date.now()}.jpg`
+    const imagePrompt = generateBasePrompt(data)
 
-    let basePrompt = `For these books listed below create a title, description and a prompt for a Text to image model to generate a fictional crossover image between these books.
-${data.map(ax => `- ${ax.title}\n`).join("")}
-Give it in a json output of fields containing title, description, prompt} without markdown code fences
-It should not be photorealistic
-It should be of aspect ratio 16:9
-It should capture the essence of these books`
+    const aiImageResponse = await generateImage(imagePrompt)
+    const aiImageResponseDataURI = `data:${aiImageResponse.media_type};charset=utf-8;base64,${aiImageResponse.b64_json}`;
 
-    let basePromptResponse = await event.platform?.env.AI.run("@cf/google/gemma-4-26b-a4b-it", {
-        messages: [
-            { role: "system", content: "You are a visual artist" },
-            {
-                role: "user",
-                content: basePrompt,
-            },
-        ],
-        stream: false,
-    })
-    let basePromptResponseBody = basePromptResponse
+    const aiImageMetadataResponse = await generateImageMetadata(userstandImagePrompt(data), aiImageResponseDataURI)
+    const aiImageMetadataResponseContent = extractJson(aiImageMetadataResponse ?? "")
 
-    // Save Data to Database ====================================================================================
 
-    const basePromptResponseBodyContent = extractJson(basePromptResponseBody?.choices[0]?.message?.content ?? "")
     const imageWriteRow: ImageInsert = {
         user_id: event.locals.user?.id,
-        // image_key: filename,
-        title: basePromptResponseBodyContent.title,
-        description: basePromptResponseBodyContent.description,
-        ai_prompt: basePromptResponseBodyContent.prompt
+        image_key: filename,
+        title: aiImageMetadataResponseContent?.title ?? "",
+        description: aiImageMetadataResponseContent?.description ?? "",
+        ai_prompt: aiImageMetadataResponseContent?.prompt ?? ""
     }
-
     const imageWriteResponse = await db.insert(image).values(imageWriteRow).returning({ id: image.id })
     const sx: BookInsert[] = data.map(ax => {
         const a: BookInsert = {
@@ -57,42 +42,33 @@ It should capture the essence of these books`
         return a
     }).filter(ax => Boolean(ax))
     const bookWriteResponse = await db.insert(book).values([...sx])
+    await uploadBase64(filename, Buffer.from(aiImageResponse.b64_json, "base64"), "image/jpeg")
 
-    // Generate an Image out of the base prompt ====================================================================================
-
-    let aiImage = await event.platform?.env.AI.run("@cf/stabilityai/stable-diffusion-xl-base-1.0", {
-        prompt: basePromptResponseBodyContent.prompt,
-        width: 1920,
-        height: 1080,
-        num_steps: 20,
-        guidance: 20,
-    })
-    const aiImageResponse = new Response(aiImage)
-
-    // Upload the Image to S3 neon ====================================================================================
-
-    await uploadFile(filename, Buffer.from(await aiImageResponse.arrayBuffer()))
-
-    // Save image file to the database ====================================================================================
-
-    await db.update(image).set({ image_key: filename }).where(eq(image.id, imageWriteResponse[0].id))
-
-    // =======================================================================================================
-
-    const url = await signUrl(filename);
-    const formdata = new FormData()
-    formdata.append("image", url)
-    formdata.append("title", imageWriteRow.title ?? "")
-    formdata.append("description", imageWriteRow.description ?? "")
-    return new Response(formdata);
+    return new Response(JSON.stringify({ id: imageWriteResponse[0].id }), {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 
-// async function fakeImageGenerator() {
-//     const response = await fetch("https://picsum.photos/1920/1080")
-//     const body = await response.arrayBuffer()
-//     return body
-// }
+function generateBasePrompt(books: BookDoc[]) {
+    const prompt = `Take the best parts from these books and create a crossover image.
+    
+    ${books.map(ax => `- ${ax.title}\n`).join("")}
+
+    Rules
+    - It should not be photorealistic.
+    - Aspect Ratio 16:9.
+    `
+    return prompt
+}
+
+function userstandImagePrompt(books: BookDoc[]) {
+    const prompt = `This image is based on these books metioned below, generate a title, description in json format with fields {title, description}
+    
+    ${books.map(ax => `- ${ax.title}\n`).join("")}
+    `
+    return prompt
+}
 
 function extractJson(str: string) {
     const start = str.search(/[\[{]/);
@@ -114,4 +90,131 @@ function extractJson(str: string) {
     throw new Error("Invalid JSON found");
 }
 
+type GenerateImageResponse = {
+    created: number;
+    data: {
+        b64_json: string;
+        media_type: string;
+    }[];
+    usage: {
+        prompt_tokens: number;
+        completion_tokens: number;
+        total_tokens: number;
+        cost: number;
+        is_byok: boolean;
+        prompt_tokens_details: {
+            cached_tokens: number;
+            cache_write_tokens: number;
+            audio_tokens: number;
+            video_tokens: number;
+        };
+        cost_details: {
+            upstream_inference_cost: number;
+            upstream_inference_prompt_cost: number;
+            upstream_inference_completions_cost: number;
+        };
+        completion_tokens_details: {
+            reasoning_tokens: number;
+            image_tokens: number;
+        };
+    };
+};
 
+async function generateImage(prompt: string) {
+    const response = await fetch("https://openrouter.ai/api/v1/images", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${OPENROUTER_KEY}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            model: "google/gemini-3.1-flash-lite-image",
+            prompt: prompt,
+        }),
+    });
+
+    const result = await response.json() as GenerateImageResponse;
+    return result.data[0]
+}
+
+type GenerateImageMetadataResponse = {
+    id: string;
+    object: string;
+    created: number;
+    model: string;
+    provider: string;
+    system_fingerprint: string | null;
+    service_tier: string;
+    choices: {
+        index: number;
+        logprobs: null | any;
+        finish_reason: string;
+        native_finish_reason: string;
+        message: {
+            role: string;
+            content: string;
+            refusal: null | string;
+            reasoning: string;
+            reasoning_details?: {
+                type: string;
+                text: string;
+                format: string;
+                index: number;
+            }[];
+        };
+    }[];
+    usage: {
+        prompt_tokens: number;
+        completion_tokens: number;
+        total_tokens: number;
+        cost: number;
+        is_byok: boolean;
+        prompt_tokens_details: {
+            cached_tokens: number;
+            cache_write_tokens: number;
+            audio_tokens: number;
+            video_tokens: number;
+        };
+        cost_details: {
+            upstream_inference_cost: number;
+            upstream_inference_prompt_cost: number;
+            upstream_inference_completions_cost: number;
+        };
+        completion_tokens_details: {
+            reasoning_tokens: number;
+            image_tokens: number;
+            audio_tokens: number;
+        };
+    };
+};
+
+async function generateImageMetadata(prompt: string, imgInBase64: string) {
+    let response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${OPENROUTER_KEY}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            "model": "google/gemma-4-26b-a4b-it",
+            "messages": [
+                {
+                    role: "user", content: [
+                        { "type": "text", "text": prompt },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": imgInBase64,
+                            },
+                        },
+
+                    ]
+                }
+            ],
+            "reasoning": { "enabled": false },
+        })
+    });
+
+    const result = await response.json() as GenerateImageMetadataResponse;
+    return result.choices[0].message.content
+}

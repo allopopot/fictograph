@@ -27,6 +27,18 @@ export async function uploadString(fileName = "", string = "") {
     return response
 }
 
+export async function uploadBase64(fileName = "", buffer: Buffer<ArrayBuffer>, contentType: string) {
+    const response = await s3.send(new PutObjectCommand({
+        Bucket: AWS_S3_BUCKET,
+        Key: fileName,
+        Body: buffer,
+        ContentType: contentType ?? "text/plain",
+        ContentEncoding: "base64"
+    }));
+    return response
+}
+
+
 export async function deleteFile(fileName = "") {
     const response = await s3.send(new DeleteObjectCommand({ Bucket: AWS_S3_BUCKET, Key: fileName }));
     return response
