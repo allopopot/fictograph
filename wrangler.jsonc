@@ -12,8 +12,8 @@
 	},
 	"workers_dev": true,
 	"preview_urls": true,
-	"ai": {
-		"binding": "AI",
-		"remote": true
-	},
+	// "ai": {
+	// 	"binding": "AI",
+	// 	"remote": true
+	// },
 }
