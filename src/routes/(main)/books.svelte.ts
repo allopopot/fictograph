@@ -567,5 +567,5 @@ const data = [
     }
 ]
 
-export const selectedTitles: BookDoc[] = $state(data)
+export const selectedTitles: BookDoc[] = $state([])
 export const selectedTitlesLimit = 3

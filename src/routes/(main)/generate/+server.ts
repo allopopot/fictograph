@@ -6,7 +6,6 @@ import { uploadBase64 } from '$lib/server/s3';
 import { OPENROUTER_KEY } from '$env/static/private';
 
 export const POST: RequestHandler = async (event) => {
-    console.log("AI INFERENCE RUNNING")
     const data: BookDoc[] = await event.request.json()
 
     if (!event.locals.user?.id) {
