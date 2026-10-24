@@ -107,6 +107,8 @@
             const w = rect.width;
             const h = rect.height;
 
+            if (w <= 0 || h <= 0) return;
+
             currentCanvas.width = w * dpr;
             currentCanvas.height = h * dpr;
             currentCanvas.style.width = `${w}px`;
@@ -131,6 +133,14 @@
         function onMouseMove(e: MouseEvent) {
             mouse.x = e.pageX - size.offsetX;
             mouse.y = e.pageY - size.offsetY;
+        }
+
+        function onTouchMove(e: TouchEvent) {
+            if (e.touches.length > 0) {
+                const touch = e.touches[0];
+                mouse.x = touch.pageX - size.offsetX;
+                mouse.y = touch.pageY - size.offsetY;
+            }
         }
 
         function updateMouseSpeed() {
@@ -237,8 +247,15 @@
         }
 
         doResize();
+        const ro = new ResizeObserver(() => {
+            doResize();
+        });
+        ro.observe(currentRoot);
+
         window.addEventListener("resize", resize);
         window.addEventListener("mousemove", onMouseMove, { passive: true });
+        window.addEventListener("touchmove", onTouchMove, { passive: true });
+        window.addEventListener("touchstart", onTouchMove, { passive: true });
         raf = requestAnimationFrame(tick);
 
         rebuild = () => {
@@ -247,11 +264,14 @@
         };
 
         return () => {
+            ro.disconnect();
             cancelAnimationFrame(raf);
             clearInterval(speedInterval);
             clearTimeout(resizeTimer);
             window.removeEventListener("resize", resize);
             window.removeEventListener("mousemove", onMouseMove);
+            window.removeEventListener("touchmove", onTouchMove);
+            window.removeEventListener("touchstart", onTouchMove);
         };
     });
 
