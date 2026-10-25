@@ -2,11 +2,19 @@
 	import "../layout.css";
 	import ThemeToggle from "$lib/components/ui/theme-toggle/ThemeToggle.svelte";
 	import Logo from "$lib/components/Logo.svelte";
+	import SEOHead from "$lib/components/SEOHead.svelte";
 
 	let { children } = $props();
 </script>
 
-<div class="min-h-dvh w-full flex flex-col items-center justify-center px-4 py-16 bg-background">
+<SEOHead
+	title="Fictograph"
+	description="Choose random fantasy books and create stunning crossover art that blends their worlds together."
+/>
+
+<div
+	class="min-h-dvh w-full flex flex-col items-center justify-center px-4 py-16 bg-background"
+>
 	<!-- Theme toggle -->
 	<div class="fixed top-4 right-4 z-50">
 		<ThemeToggle />

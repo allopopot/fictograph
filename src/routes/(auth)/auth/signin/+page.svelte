@@ -3,9 +3,15 @@
     import { Input } from "$lib/components/ui/input/index.js";
     import { Label } from "$lib/components/ui/label/index.js";
     import { Button } from "$lib/components/ui/button/index.js";
+    import SEOHead from "$lib/components/SEOHead.svelte";
 
     let { data, form, params }: PageProps = $props();
 </script>
+
+<SEOHead
+    title="Sign in to Fictograph"
+    description="Sign in to your Fictograph account to browse your fantasy book crossover creations and generate new art."
+/>
 
 <div class="border border-border bg-card p-8">
     <h2 class="text-base font-semibold mb-1">Sign in</h2>
@@ -35,12 +41,7 @@
             </div>
 
             <div class="grid gap-1.5">
-                <div class="flex items-center justify-between">
-                    <Label for="password" class="text-xs text-muted-foreground">Password</Label>
-                    <a href="##" class="text-xs text-muted-foreground hover:text-foreground transition-colors">
-                        Forgot?
-                    </a>
-                </div>
+                <Label for="password" class="text-xs text-muted-foreground">Password</Label>
                 <Input id="password" type="password" required name="password" />
                 {#if form?.properties?.password}
                     <p class="text-xs text-destructive">{form?.properties?.password.errors}</p>

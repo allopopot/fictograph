@@ -3,9 +3,15 @@
     import { Input } from "$lib/components/ui/input/index.js";
     import { Label } from "$lib/components/ui/label/index.js";
     import { Button } from "$lib/components/ui/button/index.js";
+    import SEOHead from "$lib/components/SEOHead.svelte";
 
     let { data, form, params }: PageProps = $props();
 </script>
+
+<SEOHead
+    title="Create account on Fictograph"
+    description="Sign up for a free Fictograph account to start creating fantasy book crossover art by blending worlds from your favorite novels."
+/>
 
 <div class="border border-border bg-card p-8">
     <h2 class="text-base font-semibold mb-1">Create account</h2>

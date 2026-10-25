@@ -4,10 +4,17 @@
     import { Button } from "$lib/components/ui/button/index";
     import ThemeToggle from "$lib/components/ui/theme-toggle/ThemeToggle.svelte";
     import Logo from "$lib/components/Logo.svelte";
+    import SEOHead from "$lib/components/SEOHead.svelte";
 
     let { data, children }: LayoutProps = $props();
     let mobileNavOpen = $state(false);
 </script>
+
+<SEOHead
+    title="Fictograph Dashboard"
+    description="Browse your fantasy book crossover creations, generate new crossover art, and explore your gallery."
+    noindex={true}
+/>
 
 <div class="min-h-dvh flex flex-col bg-background">
     <!-- Header: sticky + relative so the absolute dropdown is anchored beneath it -->
