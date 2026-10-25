@@ -27,7 +27,6 @@
     }
 
     onMount(() => {
-        return;
         if (selectedTitles.length <= 0) {
             goto("/create");
         } else {
@@ -65,7 +64,9 @@
                 <img src={imageUrl} alt={title} class="w-full h-auto block" />
                 <div class="p-6 border-t border-border">
                     <p class="text-base font-semibold">{title}</p>
-                    <p class="text-sm text-muted-foreground mt-2 leading-relaxed">
+                    <p
+                        class="text-sm text-muted-foreground mt-2 leading-relaxed"
+                    >
                         {description}
                     </p>
                 </div>

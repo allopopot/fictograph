@@ -1,6 +1,6 @@
 import type { BookDoc } from "$lib/api/books";
 
-const data = [
+const sampleData = [
     {
         "author_key": [
             "OL23919A"
@@ -567,5 +567,8 @@ const data = [
     }
 ]
 
-export const selectedTitles: BookDoc[] = $state([])
-export const selectedTitlesLimit = 3
+export let selectedTitles: BookDoc[] = $state([])
+export let selectedTitlesLimit = 3
+export function truncateSelectedTitles() {
+    selectedTitles.length = 0
+}
